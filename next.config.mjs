@@ -1,8 +1,9 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./i18n.ts');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ПРЕМАХНИ i18n секцията - не работи с App Router!
-  
-  // Firebase оптимизации
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -16,7 +17,6 @@ const nextConfig = {
     return config;
   },
 
-  // Оптимизация на изображения
   images: {
     remotePatterns: [
       {
@@ -31,7 +31,6 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
 
-  // Подобрено кеширане
   async headers() {
     return [
       {
@@ -51,4 +50,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

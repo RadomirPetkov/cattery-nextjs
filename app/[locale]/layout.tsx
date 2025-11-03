@@ -16,8 +16,10 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const locales = ['bg', 'en'];
+
 export function generateStaticParams() {
-  return [{ locale: 'bg' }, { locale: 'en' }];
+  return locales.map((locale) => ({ locale }));
 }
 
 export default async function LocaleLayout({
@@ -27,6 +29,10 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
+  if (!locales.includes(locale)) {
+    notFound();
+  }
+
   let messages;
   try {
     messages = (await import(`../../messages/${locale}.json`)).default;
