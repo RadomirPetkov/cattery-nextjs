@@ -1,11 +1,9 @@
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import KittenCard from '@/components/KittenCard';
 import { Metadata } from 'next';
+import { adminDb } from '@/lib/firebase/admin';
 
-// SSR с кеширане
-export const revalidate = 3600; // Revalidate на всеки час
+export const revalidate = 3600;
 
 type Kitten = {
   id: string;
@@ -17,23 +15,9 @@ type Kitten = {
 };
 
 async function getKittens(): Promise<Kitten[]> {
-  'use server';
-  
   try {
-    const admin = await import('firebase-admin');
-    
-    // Server-side Firebase Admin инициализация
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
-    }
-
-    const snapshot = await admin.firestore().collection('kittens')
+    const snapshot = await adminDb
+      .collection('kittens')
       .where('available', '==', true)
       .limit(6)
       .get();
@@ -63,8 +47,12 @@ export async function generateMetadata({
   };
 }
 
-export default async function HomePage() {
-  const t = useTranslations('home');
+export default async function HomePage({
+  params: { locale }
+}: {
+  params: { locale: string }
+}) {
+  const t = await getTranslations('home');
   const kittens = await getKittens();
 
   return (

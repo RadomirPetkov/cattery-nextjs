@@ -1,29 +1,16 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
+import { adminDb } from '@/lib/firebase/admin';
 
 type Props = {
   params: { id: string; locale: string };
 };
 
 async function getKitten(id: string) {
-  'use server';
-  
   try {
-    const admin = await import('firebase-admin');
-    
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
-    }
-
-    const doc = await admin.firestore().collection('kittens').doc(id).get();
+    const doc = await adminDb.collection('kittens').doc(id).get();
     
     if (!doc.exists) {
       return null;
@@ -53,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function KittenDetailPage({ params }: Props) {
-  const t = useTranslations('kittens');
+  const t = await getTranslations('kittens');
   const kitten = await getKitten(params.id);
 
   if (!kitten) {
