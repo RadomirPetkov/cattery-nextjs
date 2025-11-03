@@ -1,0 +1,17 @@
+{
+  "home": {
+    "title": "Добре дошли в нашата котарня",
+    "subtitle": "British Shorthair котета с превъзходна родословна"
+  },
+  "navigation": {
+    "home": "Начало",
+    "kittens": "Котета",
+    "about": "За нас",
+    "contact": "Контакти"
+  },
+  "kittens": {
+    "available": "Налични котета",
+    "reserved": "Резервирани",
+    "sold": "Продадени"
+  }
+}

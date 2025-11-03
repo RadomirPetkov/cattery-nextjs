@@ -1,0 +1,17 @@
+{
+  "home": {
+    "title": "Welcome to our Cattery",
+    "subtitle": "British Shorthair kittens with excellent pedigree"
+  },
+  "navigation": {
+    "home": "Home",
+    "kittens": "Kittens",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "kittens": {
+    "available": "Available Kittens",
+    "reserved": "Reserved",
+    "sold": "Sold"
+  }
+}
