@@ -1,11 +1,17 @@
 import createMiddleware from 'next-intl/middleware';
+import { NextRequest } from 'next/server';
 
-export default createMiddleware({
+const intlMiddleware = createMiddleware({
   locales: ['bg', 'en'],
   defaultLocale: 'bg',
   localePrefix: 'as-needed'
 });
 
+export default function middleware(request: NextRequest) {
+  return intlMiddleware(request);
+}
+
 export const config = {
-  matcher: ['/', '/(bg|en)/:path*', '/((?!_next|_vercel|.*\\..*).*)']
+  // Matcher игнорира api routes, static files, и _next
+  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
 };
