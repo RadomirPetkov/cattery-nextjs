@@ -1,7 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import KittenCard from '@/components/KittenCard';
 import { Metadata } from 'next';
-import { adminDb } from '@/lib/firebase/admin';
 
 export const revalidate = 3600;
 
@@ -16,16 +15,18 @@ type Kitten = {
 
 async function getKittens(): Promise<Kitten[]> {
   try {
-    const snapshot = await adminDb
-      .collection('kittens')
-      .where('available', '==', true)
-      .limit(6)
-      .get();
+    // В development използваме localhost, в production - твоя домейн
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/kittens`, {
+      cache: 'no-store', // За development
+      // cache: 'force-cache', // За production
+    });
 
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Kitten));
+    if (!res.ok) {
+      throw new Error('Failed to fetch kittens');
+    }
+
+    return res.json();
   } catch (error) {
     console.error('Error fetching kittens:', error);
     return [];
@@ -66,11 +67,17 @@ export default async function HomePage({
         </p>
       </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {kittens.map((kitten) => (
-          <KittenCard key={kitten.id} kitten={kitten} />
-        ))}
-      </section>
+      {kittens.length > 0 ? (
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {kittens.map((kitten) => (
+            <KittenCard key={kitten.id} kitten={kitten} />
+          ))}
+        </section>
+      ) : (
+        <p className="text-center text-gray-500">
+          {locale === 'bg' ? 'Няма налични котета в момента' : 'No kittens available at the moment'}
+        </p>
+      )}
     </main>
   );
 }

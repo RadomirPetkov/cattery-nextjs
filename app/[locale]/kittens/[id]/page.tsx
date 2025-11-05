@@ -2,21 +2,32 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
-import { adminDb } from '@/lib/firebase/admin';
 
 type Props = {
   params: { id: string; locale: string };
 };
 
-async function getKitten(id: string) {
+type Kitten = {
+  id: string;
+  name: string;
+  breed: string;
+  birthDate: string;
+  images: string[];
+  available: boolean;
+};
+
+async function getKitten(id: string): Promise<Kitten | null> {
   try {
-    const doc = await adminDb.collection('kittens').doc(id).get();
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/kittens/${id}`, {
+      cache: 'no-store',
+    });
     
-    if (!doc.exists) {
+    if (!res.ok) {
       return null;
     }
 
-    return { id: doc.id, ...doc.data() };
+    return res.json();
   } catch (error) {
     console.error('Error fetching kitten:', error);
     return null;
